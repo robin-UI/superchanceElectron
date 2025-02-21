@@ -231,77 +231,102 @@ ipcMain.on("print-bill", (event, billHTML, barcode) => {
     }
   });
 
-  printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(styledHTML)}`);
+  printWindow.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(styledHTML)}`
+  );
 
-  printWindow.webContents.on('did-finish-load', () => {
-    setTimeout(() => {
-      // Get the actual content height
-      printWindow.webContents.executeJavaScript(`
-        document.body.scrollHeight;
-      `).then((contentHeight) => {
-        const options = {
-          silent: true,
-          deviceName: 'RETSOL RTP82',
-          printBackground: true,
-          copies: 1,
-          pageSize: { 
-            width: 80000,
-            height: Math.max(contentHeight * 1000, 10000) // Convert to microns with minimum height
-          },
-          margins: {
-            marginType: 'none'
-          },
-          preferCSSPageSize: true,
-          printSelectionOnly: false,
-          landscape: false
-        };
-
-        try {
-          printWindow.webContents.print(options, (success, failureReason) => {
-            if (success) {
-              console.log('Print successful');
-              event.reply('print-success');
-              setTimeout(() => {
-                printWindow.close();
-                printWindow = null;
-              }, 1000);
-            } else {
-              console.error('Print failed:', failureReason);
-              // If silent print fails, try with dialog
-              const dialogOptions = { ...options, silent: false };
-              printWindow.webContents.print(dialogOptions, (dialogSuccess, dialogFailureReason) => {
-                if (dialogSuccess) {
-                  console.log('Dialog print successful');
-                  event.reply('print-success');
-                } else {
-                  console.error('Dialog print failed:', dialogFailureReason);
-                  event.reply('print-error', dialogFailureReason);
-                }
-                setTimeout(() => {
-                  printWindow.close();
-                  printWindow = null;
-                }, 1000);
-              });
-            }
-          });
-        } catch (error) {
-          console.error('Print error:', error);
-          event.reply('print-error', error.message);
-          printWindow.close();
+  printWindow.webContents.on("did-finish-load", () => {
+    // Basic print settings
+    printWindow.webContents.print(
+      {
+        silent: true,
+        printBackground: true,
+        margins: {
+          marginType: "none",
+        },
+        landscape: false,
+        scaleFactor: 100,
+      },
+      (success, errorType) => {
+        if (!success) {
+          console.error(`Print failed: ${errorType}`);
         }
-      }).catch(err => {
-        console.error('Error getting content height:', err);
-        event.reply('print-error', err.message);
         printWindow.close();
-      });
-    }, 1000);
+      }
+    );
   });
+  
+  // printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(styledHTML)}`);
 
-  printWindow.webContents.on('did-fail-load', (error, errorCode, errorDescription) => {
-    console.error('Failed to load:', errorDescription);
-    event.reply('print-error', errorDescription);
-    printWindow.close();
-  });
+  // printWindow.webContents.on('did-finish-load', () => {
+  //   setTimeout(() => {
+  //     // Get the actual content height
+  //     printWindow.webContents.executeJavaScript(`
+  //       document.body.scrollHeight;
+  //     `).then((contentHeight) => {
+  //       const options = {
+  //         silent: true,
+  //         deviceName: 'RETSOL RTP82',
+  //         printBackground: true,
+  //         copies: 1,
+  //         pageSize: { 
+  //           width: 80000,
+  //           height: Math.max(contentHeight * 1000, 10000) // Convert to microns with minimum height
+  //         },
+  //         margins: {
+  //           marginType: 'none'
+  //         },
+  //         preferCSSPageSize: true,
+  //         printSelectionOnly: false,
+  //         landscape: false
+  //       };
+
+  //       try {
+  //         printWindow.webContents.print(options, (success, failureReason) => {
+  //           if (success) {
+  //             console.log('Print successful');
+  //             event.reply('print-success');
+  //             setTimeout(() => {
+  //               printWindow.close();
+  //               printWindow = null;
+  //             }, 1000);
+  //           } else {
+  //             console.error('Print failed:', failureReason);
+  //             // If silent print fails, try with dialog
+  //             const dialogOptions = { ...options, silent: false };
+  //             printWindow.webContents.print(dialogOptions, (dialogSuccess, dialogFailureReason) => {
+  //               if (dialogSuccess) {
+  //                 console.log('Dialog print successful');
+  //                 event.reply('print-success');
+  //               } else {
+  //                 console.error('Dialog print failed:', dialogFailureReason);
+  //                 event.reply('print-error', dialogFailureReason);
+  //               }
+  //               setTimeout(() => {
+  //                 printWindow.close();
+  //                 printWindow = null;
+  //               }, 1000);
+  //             });
+  //           }
+  //         });
+  //       } catch (error) {
+  //         console.error('Print error:', error);
+  //         event.reply('print-error', error.message);
+  //         printWindow.close();
+  //       }
+  //     }).catch(err => {
+  //       console.error('Error getting content height:', err);
+  //       event.reply('print-error', err.message);
+  //       printWindow.close();
+  //     });
+  //   }, 1000);
+  // });
+
+  // printWindow.webContents.on('did-fail-load', (error, errorCode, errorDescription) => {
+  //   console.error('Failed to load:', errorDescription);
+  //   event.reply('print-error', errorDescription);
+  //   printWindow.close();
+  // });
 });
 
 ipcMain.on('save-printer-settings', (event, settings) => {
