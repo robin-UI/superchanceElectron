@@ -19,7 +19,7 @@ const createWindow = () => {
 
   const indexPath = path.join(__dirname, 'index.html');
   console.log('Loading from:', indexPath);
-  
+
   mainWindow.loadFile(indexPath).catch(err => {
     console.error('Failed to load:', err);
   });
@@ -150,7 +150,7 @@ ipcMain.on("print-bill", (event, billHTML, barcode) => {
   if (barcode) {
     const canvas = createCanvas(paperWidthPx, 100);
     const ctx = canvas.getContext("2d");
-    
+
     JsBarcode(canvas, barcode, {
       format: "CODE128",
       displayValue: false,
@@ -158,7 +158,7 @@ ipcMain.on("print-bill", (event, billHTML, barcode) => {
       width: 2,
       margin: 10
     });
-    
+
     barcodeDataURL = canvas.toDataURL();
   }
 
@@ -255,7 +255,7 @@ ipcMain.on("print-bill", (event, billHTML, barcode) => {
       }
     );
   });
-  
+
   // printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(styledHTML)}`);
 
   // printWindow.webContents.on('did-finish-load', () => {
@@ -346,7 +346,7 @@ ipcMain.handle('get-printers', (event) => {
 
 ipcMain.on("window-minimize", () => {
   console.log("call minimized 1234");
-  
+
   mainWindow.minimize();
 });
 
