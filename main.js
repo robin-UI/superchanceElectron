@@ -213,7 +213,7 @@ ipcMain.on("print-bill", (event, billHTML, barcode) => {
         </div>
         ${barcode ? `
           <div style="margin: 10px 0;">
-            <img style="width: 320px; height: 52px; display: block;" src="${barcodeDataURL}" alt="Barcode" />
+            <img style="width: 260px; height: 54px; display: block;" src="${barcodeDataURL}" alt="Barcode" />
             <p style="margin: 5px 0; font-size: 14px;">${barcode}</p>
           </div>
         ` : ''}
