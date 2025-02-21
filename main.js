@@ -240,7 +240,7 @@ ipcMain.on("print-bill", (event, billHTML, barcode) => {
         document.body.scrollHeight;
       `).then((contentHeight) => {
         const options = {
-          silent: false,
+          silent: true,
           deviceName: 'RETSOL RTP82',
           printBackground: true,
           copies: 1,
